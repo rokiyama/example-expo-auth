@@ -34,28 +34,22 @@ export const useAuth = () => {
   );
 
   useEffect(() => {
-    const exchangeFn = async (exchangeTokenReq: AccessTokenRequestConfig) => {
-      try {
-        const exchangeTokenResponse = await exchangeCodeAsync(
-          exchangeTokenReq,
-          discoveryDocument
-        );
-        setAuthTokens(exchangeTokenResponse);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    if (response) {
-      if (response.type === "success" && request?.codeVerifier) {
-        exchangeFn({
+    if (response?.type === "success" && request?.codeVerifier) {
+      exchangeCodeAsync(
+        {
           clientId,
           code: response.params.code,
           redirectUri,
           extraParams: {
             code_verifier: request.codeVerifier,
           },
+        },
+        discoveryDocument
+      )
+        .then((token) => setAuthTokens(token))
+        .catch((error) => {
+          console.error(error);
         });
-      }
     }
   }, [discoveryDocument, request, response]);
 
